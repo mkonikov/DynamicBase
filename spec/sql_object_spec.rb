@@ -1,4 +1,4 @@
-require '01_sql_object'
+require 'sql_object'
 require 'db_connection'
 require 'securerandom'
 
@@ -135,7 +135,7 @@ describe SQLObject do
       it 'throws an error when given an unknown attribute' do
         expect do
           Cat.new(favorite_band: 'Anybody but The Eagles')
-        end.to raise_error "unknown attribute 'favorite_band'"
+        end.to raise_error "Unknown attribute 'favorite_band'"
       end
     end
 

@@ -1,30 +1,28 @@
 require_relative 'db_connection'
 require 'active_support/inflector'
 require 'byebug'
-# NB: the attr_accessor we wrote in phase 0 is NOT used in the rest
-# of this project. It was only a warm up.
 
 class SQLObject
 
   def self.columns
     if @columns.nil?
-      cols_queury = DBConnection.execute2(<<-SQL)
+      cols_query = DBConnection.execute2(<<-SQL)
         SELECT
           *
         FROM
           '#{self.table_name}'
+        LIMIT
+          0
       SQL
-      @columns = cols_queury[0].map(&:to_sym)
+      @columns = cols_query.first.map(&:to_sym)
     else
       @columns
     end
   end
 
-  # c_set = "#{col}="
   def self.finalize!
     self.columns.each do |col|
       define_method(col) do
-        
         self.attributes[col]
       end
 
@@ -43,18 +41,13 @@ class SQLObject
   end
 
   def self.all
-    if @all.nil?
-      all_query = DBConnection.execute(<<-SQL)
-        SELECT
-          *
-        FROM
-          #{self.table_name}
-      SQL
-      @all = all_query
-    else
-      @all
-    end
-    self.parse_all(@all)
+    all_query = DBConnection.execute(<<-SQL)
+      SELECT
+        *
+      FROM
+        #{self.table_name}
+    SQL
+    self.parse_all(all_query)
   end
 
   def self.parse_all(results)
@@ -70,7 +63,7 @@ class SQLObject
       FROM
         #{self.table_name}
       WHERE
-        id = ?
+        id = :id
     SQL
     self.new(item.first) unless item.empty?
   end
@@ -78,7 +71,7 @@ class SQLObject
   def initialize(params = {})
     params.each do |k,v|
       unless self.class.columns.include?(k.to_sym)
-        raise Exception.new("unknown attribute '#{k}'")
+        raise Exception.new("Unknown attribute '#{k}'")
       end
       k = "#{k}=".to_sym
       self.send(k, v)
@@ -90,21 +83,15 @@ class SQLObject
   end
 
   def attribute_values
-    attributes.map { |k,v| v }
+    self.class.columns.map { |col| self.send(col) }
   end
 
   def insert
-    columns = []
-    values = []
-    attributes.each do |k,v|
-      columns << k
-      values << v
-    end
-    v = values.join(", ")
+    columns = self.class.columns.drop(1)
     c = columns.join(", ")
     qs = Array.new(columns.length, '?').join(", ")
 
-    DBConnection.execute(<<-SQL, *values)
+    DBConnection.execute(<<-SQL, *attribute_values.drop(1))
       INSERT INTO
         #{self.class.table_name} (#{c})
       VALUES
@@ -114,30 +101,19 @@ class SQLObject
   end
 
   def update
+    columns = self.class.columns.map { |attr| "#{attr} = ?" }.join(", ")
 
-    columns = []
-    values = []
-    attributes.each do |k,v|
-      columns << "#{k} = ?"
-      values << v
-    end
-    c = columns.join(", ")
-
-
-    DBConnection.execute(<<-SQL, *values, self.id)
+    DBConnection.execute(<<-SQL, *attribute_values, self.id)
       UPDATE
         #{self.class.table_name}
       SET
-        #{c}
+        #{columns}
       WHERE
         id = ?
     SQL
   end
 
   def save
-    debugger
-    # self.instance_variables.empty? ? insert : update
     self.id.nil? ? insert : update
-
   end
 end

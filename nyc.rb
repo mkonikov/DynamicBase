@@ -1,6 +1,6 @@
 require_relative 'lib/sql_object'
 
-DBConnection.reset
+DynamicConnection.reset
 
 class Borough < SQLObject
   has_many :neighborhoods

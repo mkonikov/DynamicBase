@@ -1,11 +1,16 @@
-require_relative 'db_connection'
+require_relative 'dynamic_connection'
+require_relative 'searchable'
+require_relative 'associations'
 require 'active_support/inflector'
 
 class SQLObject
 
+  extend Searchable
+  extend Associatable
+
   def self.columns
     if @columns.nil?
-      cols_query = DBConnection.execute2(<<-SQL)
+      cols_query = DynamicConnection.execute2(<<-SQL)
         SELECT
           *
         FROM
@@ -40,7 +45,7 @@ class SQLObject
   end
 
   def self.all
-    all_query = DBConnection.execute(<<-SQL)
+    all_query = DynamicConnection.execute(<<-SQL)
       SELECT
         *
       FROM
@@ -56,7 +61,7 @@ class SQLObject
   end
 
   def self.find(id)
-    item = DBConnection.execute(<<-SQL, id)
+    item = DynamicConnection.execute(<<-SQL, id)
       SELECT
         *
       FROM
@@ -90,19 +95,20 @@ class SQLObject
     c = columns.join(", ")
     qs = Array.new(columns.length, '?').join(", ")
 
-    DBConnection.execute(<<-SQL, *attribute_values.drop(1))
+    DynamicConnection.execute(<<-SQL, *attribute_values.drop(1))
       INSERT INTO
         #{self.class.table_name} (#{c})
       VALUES
         (#{qs})
     SQL
-    self.id = DBConnection.instance.last_insert_row_id
+    self.id = DynamicConnection.instance.last_insert_row_id
+    self
   end
 
   def update
     columns = self.class.columns.map { |attr| "#{attr} = ?" }.join(", ")
 
-    DBConnection.execute(<<-SQL, *attribute_values, self.id)
+    DynamicConnection.execute(<<-SQL, *attribute_values, self.id)
       UPDATE
         #{self.class.table_name}
       SET
@@ -110,6 +116,7 @@ class SQLObject
       WHERE
         id = ?
     SQL
+    self
   end
 
   def save

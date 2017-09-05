@@ -5,7 +5,7 @@ ROOT_FOLDER = File.join(File.dirname(__FILE__), '..')
 NYC_SQL_FILE = File.join(ROOT_FOLDER, 'nyc.sql')
 NYC_DB_FILE = File.join(ROOT_FOLDER, 'nyc.db')
 
-class DBConnection
+class DynamicConnection
   def self.open(db_file_name)
     @db = SQLite3::Database.new(db_file_name)
     @db.results_as_hash = true
@@ -21,7 +21,7 @@ class DBConnection
     ]
 
     commands.each { |command| `#{command}` }
-    DBConnection.open(NYC_DB_FILE)
+    DynamicConnection.open(NYC_DB_FILE)
   end
 
   def self.instance

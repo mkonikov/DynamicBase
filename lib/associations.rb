@@ -1,7 +1,6 @@
 require_relative 'searchable'
-require_relative 'db_connection'
+require_relative 'dynamic_connection'
 require 'active_support/inflector'
-require 'byebug'
 
 class AssocOptions
   attr_accessor :foreign_key, :class_name, :primary_key
@@ -75,7 +74,7 @@ module Associatable
 
       key_val = self.send(thru_fk)
 
-      data = DBConnection.execute(<<-SQL, key_val)
+      data = DynamicConnection.execute(<<-SQL, key_val)
         SELECT
           #{src_table}.*
         FROM
@@ -98,8 +97,4 @@ module Associatable
     @assoc_options ||= {}
     @assoc_options
   end
-end
-
-class SQLObject
-  extend Associatable
 end

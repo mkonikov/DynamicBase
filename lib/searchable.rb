@@ -1,5 +1,5 @@
 require_relative 'dynamic_connection'
-require_relative 'sql_object'
+require_relative 'base'
 
 module Searchable
   def where(params)

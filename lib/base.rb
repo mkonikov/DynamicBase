@@ -3,10 +3,10 @@ require_relative 'searchable'
 require_relative 'associations'
 require 'active_support/inflector'
 
-class SQLObject
+class Base
 
   extend Searchable
-  extend Associatable
+  extend Associations
 
   def self.columns
     if @columns.nil?
@@ -68,6 +68,34 @@ class SQLObject
         #{self.table_name}
       WHERE
         id = :id
+    SQL
+    self.new(item.first) unless item.empty?
+  end
+
+  def self.first
+    item = DynamicConnection.execute(<<-SQL)
+      SELECT
+        *
+      FROM
+        #{self.table_name}
+      ORDER BY
+        id
+      LIMIT
+        1
+    SQL
+    self.new(item.first) unless item.empty?
+  end
+
+  def self.last
+    item = DynamicConnection.execute(<<-SQL)
+      SELECT
+        *
+      FROM
+        #{self.table_name}
+      ORDER BY
+        id DESC
+      LIMIT
+        1
     SQL
     self.new(item.first) unless item.empty?
   end

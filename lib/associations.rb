@@ -10,7 +10,7 @@ class AssocOptions
   end
 
   def table_name
-    self.model_class.table_name
+    model_class.table_name
   end
 end
 
@@ -30,7 +30,7 @@ class HasManyOptions < AssocOptions
   end
 end
 
-module Associatable
+module Associations
   def belongs_to(name, options = {})
     self.assoc_options[name] =
       BelongsToOptions.new(name, options)

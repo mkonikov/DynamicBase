@@ -8,7 +8,7 @@ CREATE TABLE neighborhoods (
   name VARCHAR(255) NOT NULL,
   borough_id INTEGER,
 
-  FOREIGN KEY(borough_id) REFERENCES borough(id)
+  FOREIGN KEY(borough_id) REFERENCES boroughs(id)
 );
 
 CREATE TABLE sights (
@@ -61,7 +61,6 @@ VALUES
   (28, "Bushwick", 2),
   (29, "Canarsie", 2),
   (30, "Riverdale", 1),
-  (30, "Hunts Point", 1),
   (31, "Kingsbridge", 2),
   (32, "Morrisania", 2),
   (33, "Morris Park", 2),
@@ -84,13 +83,14 @@ VALUES
   (50, "Eltingville", 5),
   (51, "New Dorp", 5),
   (52, "Great Kills", 5),
-  (53, "Chelsea", 3)
+  (53, "Chelsea", 3),
   (54, "Mott Haven", 1),
   (55, "Woodlawn", 1),
   (56, "Throggs Neck", 1),
   (57, "Belmont", 1),
   (58, "Concourse", 1),
-  (59, "West Brighton", 5);
+  (59, "West Brighton", 5),
+  (60, "Hunts Point", 1);
 
 INSERT INTO
   sights (id, name, neighborhood_id)

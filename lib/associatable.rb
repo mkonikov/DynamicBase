@@ -1,4 +1,5 @@
 require_relative 'searchable'
+require_relative 'db_connection'
 require 'active_support/inflector'
 require 'byebug'
 
@@ -60,6 +61,37 @@ module Associatable
   end
 
   def has_one_through(name, through_name, source_name)
+    define_method(name) do
+      through_options = self.class.assoc_options[through_name]
+      source_options = through_options.model_class.assoc_options[source_name]
+
+      thru_table = through_options.table_name
+      thru_fk = through_options.foreign_key
+      thru_pk = through_options.primary_key
+
+      src_table = source_options.table_name
+      src_fk = source_options.foreign_key
+      src_pk = source_options.primary_key
+
+      key_val = self.send(thru_fk)
+
+      data = DBConnection.execute(<<-SQL, key_val)
+        SELECT
+          #{src_table}.*
+        FROM
+          #{thru_table}
+        JOIN
+          #{src_table}
+        ON
+          #{thru_table}.#{src_fk} = #{src_table}.#{src_pk}
+        WHERE
+          #{thru_table}.#{thru_pk} = ?
+
+      SQL
+
+      source_options.model_class.parse_all(data).first
+
+    end
   end
 
   def assoc_options

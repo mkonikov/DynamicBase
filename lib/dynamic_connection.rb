@@ -2,8 +2,8 @@ require 'sqlite3'
 
 PRINT_QUERIES = ENV['PRINT_QUERIES'] == 'true'
 ROOT_FOLDER = File.join(File.dirname(__FILE__), '..')
-NYC_SQL_FILE = File.join(ROOT_FOLDER, 'nyc.sql')
-NYC_DB_FILE = File.join(ROOT_FOLDER, 'nyc.db')
+NYC_SQL_FILE = File.join(ROOT_FOLDER, 'demo', 'nyc.sql')
+NYC_DB_FILE = File.join(ROOT_FOLDER, 'demo', 'nyc.db')
 
 class DynamicConnection
   def self.open(db_file_name)

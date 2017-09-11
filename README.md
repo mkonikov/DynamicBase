@@ -2,6 +2,13 @@
 
 DynamicBase is a lightweight object-relational mapping tool built with Ruby. By creating a subclass of the `Base` class, existing tables in the database are mapped to these new classes.
 
+Using the sample database as an example, one can retrieve the NYC attractions in the Bronx by running `Borough.first.sights`. To change a property, for example the name, one can simply type
+```
+bronx = Borough.first
+bronx.name = 'The Bronx'
+bronx.save
+```
+
 ## Features
 [Base](#base)
 * [`::all`](#all)
@@ -89,4 +96,4 @@ Example: `Sight.first.borough`
 
 
 ## Demo
-A sample database is included. To run simply clone this repo and open with pry or IRB with the `load 'nyc.rb'` command.
+A sample database is included. To run simply clone this repo and open with pry or IRB with the `load 'demo/nyc.rb'` command.

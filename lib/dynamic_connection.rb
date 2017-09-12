@@ -1,4 +1,5 @@
 require 'sqlite3'
+require 'byebug'
 
 PRINT_QUERIES = ENV['PRINT_QUERIES'] == 'true'
 ROOT_FOLDER = File.join(File.dirname(__FILE__), '..')
@@ -20,7 +21,10 @@ class DynamicConnection
       "cat '#{NYC_SQL_FILE}' | sqlite3 '#{NYC_DB_FILE}'"
     ]
 
-    commands.each { |command| `#{command}` }
+    commands.each do |command|
+      next if (command[0..1] == 'rm') && (!Pathname("#{NYC_DB_FILE}").exist?)
+      `#{command}`
+    end
     DynamicConnection.open(NYC_DB_FILE)
   end
 
